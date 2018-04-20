@@ -4,7 +4,6 @@ This is a re-work of a plugin that I've made to log consents in WordPress. This 
 
 PRs / suggestions etc are welcome either here or on https://core.trac.wordpress.org/ticket/43797
 
-
 ## How to use:
 
 
@@ -25,3 +24,7 @@ PRs / suggestions etc are welcome either here or on https://core.trac.wordpress.
 
 ### Check if the consent is Accepted
 `$consent = $cl_consent->cl_has_consent( 'test@test.gr', 'form_1' );`
+
+#### Contributors
+
+[xkon](https://github.com/mrxkon), [aristah](https://github.com/aristath)

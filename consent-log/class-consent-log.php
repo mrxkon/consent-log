@@ -8,8 +8,7 @@
  * Plugin Name:       Consent Log
  * Description:       Adds a CPT and utility functions for the purpose of keeping logs from various consents.
  * Version:           4.9.5
- * Author:            Xenos (xkon) Konstantinos
- * Author URI:        https://xkon.gr
+ * Author:            xkon, aristah
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       consent-log
@@ -91,14 +90,15 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 
 			register_post_type(
 				'cl_consent_log', array(
-					'labels'       => array(
+					'labels'            => array(
 						'name'          => __( 'Consent Log', 'consent-log' ),
 						'singular_name' => __( 'Consent Log', 'consent-log' ),
 					),
-					'public'       => true,
-					'show_in_menu' => true,
-					'hierarchical' => false,
-					'supports'     => array( '' ),
+					'public'            => true,
+					'show_in_menu'      => true,
+					'hierarchical'      => false,
+					'supports'          => array( '' ),
+					'show_in_nav_menus' => false,
 				)
 			);
 		}
