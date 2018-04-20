@@ -12,11 +12,9 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       consent-log
  * Domain Path:       /languages
- *
  */
 
 /*
-
 How to use:
 
 - Initialize the Consent_Log
@@ -61,7 +59,6 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 *
 		 * @uses add_action()
 		 * @uses add_filter()
-		 *
 		 */
 		public function init() {
 
@@ -76,7 +73,6 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * Register the consent log post type
 		 *
 		 * @uses register_post_type()
-		 *
 		 */
 		public function cl_consent_log_post_type() {
 
@@ -98,7 +94,6 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * Set the CPT columns
 		 *
 		 * @uses unset()
-		 *
 		 */
 		public function set_cl_consent_log_columns( $columns ) {
 
@@ -117,7 +112,6 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * Set the CPT column data
 		 *
 		 * @uses get_post_meta()
-		 *
 		 */
 		public function cl_consent_log_columns_data( $column, $post_id ) {
 
@@ -146,7 +140,6 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * Unset post actions from CPT table
 		 *
 		 * @uses unset()
-		 *
 		 */
 		public function cl_consent_log_disable_quit_edit( $actions = array(), $post = null ) {
 
@@ -248,13 +241,15 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 
 				$user_id = 0;
 
-				$consent = wp_insert_post( array(
-					'post_author'   => $user_id,
-					'post_status'   => 'publish',
-					'post_type'     => 'cl_consent_log',
-					'post_date'     => current_time( 'mysql', false ),
-					'post_date_gmt' => current_time( 'mysql', true ),
-				), true );
+				$consent = wp_insert_post(
+					array(
+						'post_author'   => $user_id,
+						'post_status'   => 'publish',
+						'post_type'     => 'cl_consent_log',
+						'post_date'     => current_time( 'mysql', false ),
+						'post_date_gmt' => current_time( 'mysql', true ),
+					), true
+				);
 
 				update_post_meta( $consent, '_cl_uid', $uid );
 				update_post_meta( $consent, '_cl_cid', $cid );
