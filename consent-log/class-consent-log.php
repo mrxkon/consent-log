@@ -1,5 +1,7 @@
 <?php
 /**
+ * Consent Log class for WordPress.
+ *
  * @package Consent Log
  * @version 4.9.5
  *
@@ -45,10 +47,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'Consent_Log' ) ) {
 
+	/**
+	 * A class for logging consents in a cl_consent_log custom post-type.
+	 *
+	 * @since 4.9.6
+	 */
 	class Consent_Log {
 
 		/**
-		 * Constructor
+		 * Constructor.
+		 *
+		 * @since 4.9.6
 		 */
 		public function __construct() {
 			$this->init();
@@ -56,6 +65,8 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 
 		/**
 		 * Plugin initialization.
+		 *
+		 * @since 4.9.6
 		 *
 		 * @uses add_action()
 		 * @uses add_filter()
@@ -71,6 +82,8 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 
 		/**
 		 * Register the consent log post type
+		 *
+		 * @since 4.9.6
 		 *
 		 * @uses register_post_type()
 		 */
@@ -91,9 +104,15 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		}
 
 		/**
-		 * Set the CPT columns
+		 * Set the CPT columns.
+		 *
+		 * @since 4.9.6
+		 *
+		 * @param array $columns An array of columns that will be used in consents.
 		 *
 		 * @uses unset()
+		 *
+		 * @return array
 		 */
 		public function set_cl_consent_log_columns( $columns ) {
 
@@ -109,19 +128,26 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		}
 
 		/**
-		 * Set the CPT column data
+		 * Set the CPT column data.
+		 *
+		 * @since 4.9.6
+		 *
+		 * @param string $column  The column for which we want to get the data.
+		 * @param int    $post_id The consent post-ID.
 		 *
 		 * @uses get_post_meta()
+		 *
+		 * @return void
 		 */
 		public function cl_consent_log_columns_data( $column, $post_id ) {
 
 			switch ( $column ) {
 				case 'uid':
-					echo get_post_meta( $post_id, '_cl_uid', true );
+					echo esc_html( get_post_meta( $post_id, '_cl_uid', true ) );
 					break;
 
 				case 'cid':
-					echo get_post_meta( $post_id, '_cl_cid', true );
+					echo esc_html( get_post_meta( $post_id, '_cl_cid', true ) );
 					break;
 
 				case 'sid':
@@ -139,7 +165,14 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		/**
 		 * Unset post actions from CPT table
 		 *
+		 * @since 4.9.6
+		 *
+		 * @param array   $actions An array of actions for the post-type.
+		 * @param WP_Post $post    The consent post object.
+		 *
 		 * @uses unset()
+		 *
+		 * @return array           The $actions, modified.
 		 */
 		public function cl_consent_log_disable_quit_edit( $actions = array(), $post = null ) {
 
@@ -160,6 +193,9 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * @uses sanitize_text_field()
 		 * @uses WP_Query
 		 * @uses have_posts()
+		 *
+		 * @param string $uid The user's email address.
+		 * @param string $cid Consent ID.
 		 *
 		 * @return mixed consent id if exists | false if there's no consent
 		 */
@@ -199,6 +235,9 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * @uses Consent_Log::cl_consent_exists()
 		 * @uses get_post_meta()
 		 *
+		 * @param string $uid The user's email address.
+		 * @param string $cid Consent ID.
+		 *
 		 * @return boolean true/false depending if the consent is accepted
 		 */
 		public function cl_has_consent( $uid, $cid ) {
@@ -226,6 +265,10 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * @uses wp_insert_post()
 		 * @uses current_time()
 		 * @uses update_post_meta()
+		 *
+		 * @param string $uid The user's email address.
+		 * @param string $cid Consent ID.
+		 * @param mixed  $sid Consent Status.
 		 *
 		 * @return boolean true/false depending if the consent is updated
 		 */
@@ -269,6 +312,9 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * @uses wp_delete_post()
 		 * @uses current_time()
 		 *
+		 * @param string $uid The user's email address.
+		 * @param string $cid Consent ID.
+		 *
 		 * @return boolean true/false depending if the consent is deleted
 		 */
 		public function cl_remove_consent( $uid, $cid ) {
@@ -296,6 +342,10 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * @uses Consent_Log::cl_consent_exists()
 		 * @uses update_post_meta()
 		 *
+		 * @param string $uid The user's email address.
+		 * @param string $cid Consent ID.
+		 * @param mixed  $sid Consent Status.
+		 *
 		 * @return boolean true/false depending if the consent is updated
 		 */
 		public function cl_update_consent( $uid, $cid, $sid ) {
@@ -312,12 +362,8 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 
 				return true;
 			}
-
 			return false;
 		}
-
 	}
-
 	new Consent_Log();
-
 }
