@@ -99,6 +99,9 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 					'hierarchical'      => false,
 					'supports'          => array( '' ),
 					'show_in_nav_menus' => false,
+					'capabilities'      => array(
+						'create_posts' => false,
+					),
 				)
 			);
 		}
