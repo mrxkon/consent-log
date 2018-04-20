@@ -228,6 +228,7 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * Adds a new consent in the CPT
 		 *
 		 * @uses sanitize_text_field()
+		 * @uses intval()
 		 * @uses Consent_Log::cl_consent_exists()
 		 * @uses wp_insert_post()
 		 * @uses current_time()
@@ -239,7 +240,7 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 
 			$uid = sanitize_text_field( $uid );
 			$cid = sanitize_text_field( $cid );
-			$sid = sanitize_text_field( $sid );
+			$sid = intval( $sid );
 
 			$exists = $this->cl_consent_exists( $uid, $cid );
 
@@ -296,6 +297,7 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * Update a consent from the CPT
 		 *
 		 * @uses sanitize_text_field()
+		 * @uses intval()
 		 * @uses Consent_Log::cl_consent_exists()
 		 * @uses update_post_meta()
 		 *
@@ -305,7 +307,7 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 
 			$uid = sanitize_text_field( $uid );
 			$cid = sanitize_text_field( $cid );
-			$sid = sanitize_text_field( $sid );
+			$sid = intval( $sid );
 
 			$exists = $this->cl_consent_exists( $uid, $cid );
 
