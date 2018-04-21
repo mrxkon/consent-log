@@ -132,6 +132,7 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		 * @since 4.9.6
 		 *
 		 * @uses esc_attr_e()
+		 * @uses WP_Query()
 		 * @uses have_posts()
 		 * @uses the_post()
 		 * @uses esc_html()
@@ -157,7 +158,8 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 				</thead>
 				<?php
 				$args = array(
-					'post_type' => 'cl_consent_log',
+					'post_type'      => 'cl_consent_log',
+					'posts_per_page' => '-1',
 				);
 
 				$query = new WP_Query( $args );
@@ -223,8 +225,9 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 			$cid = sanitize_text_field( $cid );
 
 			$args = array(
-				'post_type'  => 'cl_consent_log',
-				'meta_query' => array(
+				'post_type'      => 'cl_consent_log',
+				'posts_per_page' => '1',
+				'meta_query'     => array(
 					'relation'            => 'AND',
 					'_user_email'         => array(
 						'key'   => '_cl_uid',
