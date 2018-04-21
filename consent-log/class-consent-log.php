@@ -96,7 +96,7 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 						'singular_name' => __( 'Consent Log', 'consent-log' ),
 					),
 					'public'            => true,
-					'show_in_menu'      => true,
+					'show_in_menu'      => false,
 					'hierarchical'      => false,
 					'supports'          => array( '' ),
 					'show_in_nav_menus' => false,
