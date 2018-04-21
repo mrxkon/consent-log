@@ -73,10 +73,8 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		public function init() {
 
 			add_action( 'init', array( $this, 'cl_consent_log_post_type' ), 0 );
-			add_action( 'manage_posts_custom_column', array( $this, 'cl_consent_log_columns_data' ), 10, 2 );
-			add_filter( 'manage_cl_consent_log_posts_columns', array( $this, 'set_cl_consent_log_columns' ) );
-			add_filter( 'post_row_actions', array( $this, 'cl_consent_log_disable_quit_edit' ), 10, 2 );
 			add_action( 'admin_menu', array( $this, 'cl_create_admin_submenu' ) );
+			add_action( 'wp_ajax_cl-consent-log-remove-consents', array( $this, 'cl_ajax_remove_consents' ) );
 
 		}
 
@@ -148,14 +146,31 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 			?>
 			<div class="wrap">
 			<h1>Consent Log</h1>
-			<table class="widefat striped" style="margin-top:20px;">
+			<hr class="wp-header-end">
+			<form method="post" class="consents-log-remove-form" id="consents-log-remove-form">
+				<h2><?php esc_html_e( 'Remove all the consents of a user.', 'consent-log' ); ?></h2>
+				<label for="user_id_to_remove_consent"><?php esc_html_e( 'User ID', 'consent-log' ); ?></label>
+				<input type="text" required class="regular-text" id="user_id_to_remove_consent" name="user_id_to_remove_consent" />
+				<?php submit_button( __( 'Remove' ), 'secondary', 'submit', false ); ?>
+			</form>
+			<hr />
+			<table class="widefat striped">
 				<thead>
-					<th class="row-title"><?php esc_attr_e( 'User ID', 'consent-log' ); ?></th>
-					<th><?php esc_attr_e( 'Consent ID', 'consent-log' ); ?></th>
-					<th><?php esc_attr_e( 'Status', 'consent-log' ); ?></th>
-					<th><?php esc_attr_e( 'Date', 'consent-log' ); ?></th>
-					<th></th>
+					<tr>
+						<th><?php esc_attr_e( 'User ID', 'consent-log' ); ?></th>
+						<th><?php esc_attr_e( 'Consent ID', 'consent-log' ); ?></th>
+						<th><?php esc_attr_e( 'Status', 'consent-log' ); ?></th>
+						<th><?php esc_attr_e( 'Date', 'consent-log' ); ?></th>
+					</tr>
 				</thead>
+				<tfoot>
+					<tr>
+						<td><?php esc_attr_e( 'User ID', 'consent-log' ); ?></td>
+						<td><?php esc_attr_e( 'Consent ID', 'consent-log' ); ?></td>
+						<td><?php esc_attr_e( 'Status', 'consent-log' ); ?></td>
+						<td><?php esc_attr_e( 'Date', 'consent-log' ); ?></td>
+					</tr>
+				</tfoot>
 				<?php
 				$args = array(
 					'post_type'      => 'cl_consent_log',
@@ -174,12 +189,12 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 								echo esc_html( get_post_meta( get_the_ID(), '_cl_uid', true ) );
 								?>
 							</td>
-							<td class="row-title">
+							<td>
 								<?php
 								echo esc_html( get_post_meta( get_the_ID(), '_cl_cid', true ) );
 								?>
 							</td>
-							<td class="row-title">
+							<td>
 								<?php
 								$sid = (int) get_post_meta( get_the_ID(), '_cl_sid', true );
 
@@ -190,13 +205,10 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 								}
 								?>
 							</td>
-							<td class="row-title">
+							<td>
 								<?php
 								echo get_the_date() . ' - ' . get_the_time();
 								?>
-							</td>
-							<td class="row-title">
-								<button class="button">Remove</button>
 							</td>
 						</tr>
 					<?php
@@ -204,7 +216,72 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 				}
 				?>
 			</table>
+			<script>
+			( function( $ ) {
+				$( '#consents-log-remove-form' ).submit( function( e ) {
+					var data,
+						uid = $( '#user_id_to_remove_consent' ).val();
+
+					e.preventDefault();
+
+					data = {
+						'action': 'cl-consent-log-remove-consents',
+						'uid': uid,
+					};
+
+					$.post(
+						ajaxurl,
+						data,
+						function( response ) {
+							if ( true === response.success ) {
+								window.location.href = window.location.href;
+							}
+						});
+				});
+			} ) ( jQuery )
+			</script>
 			<?php
+		}
+
+		/**
+		 * Ajax for removing consents of a User ID
+		 *
+		 * @since 4.9.6
+		 *
+		 * @uses sanitize_text_field()
+		 * @uses WP_Query()
+		 * @uses have_posts()
+		 * @uses the_post()
+		 * @uses wp_delete_post()
+		 * @uses get_the_ID()
+		 * @uses wp_send_json_success()
+		 */
+		public function cl_ajax_remove_consents() {
+
+			$uid = sanitize_text_field( $_POST['uid'] );
+
+			$args = array(
+				'post_type'      => 'cl_consent_log',
+				'posts_per_page' => '-1',
+				'meta_query'     => array(
+					'_user_email' => array(
+						'key'   => '_cl_uid',
+						'value' => $uid,
+					),
+				),
+			);
+
+			$query = new WP_Query( $args );
+
+			if ( $query->have_posts() ) {
+				while ( $query->have_posts() ) {
+					$query->the_post();
+
+					wp_delete_post( get_the_ID() );
+				}
+			}
+
+			wp_send_json_success( $uid );
 		}
 
 		/**
