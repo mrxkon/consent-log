@@ -3,11 +3,11 @@
  * Consent Log class for WordPress.
  *
  * @package Consent Log
- * @version 4.9.5
+ * @version 4.9.6
  *
  * Plugin Name:       Consent Log
  * Description:       Adds a CPT and utility functions for the purpose of keeping logs from various consents.
- * Version:           4.9.5
+ * Version:           4.9.6
  * Author:            xkon, aristah
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -76,6 +76,7 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 			add_action( 'manage_posts_custom_column', array( $this, 'cl_consent_log_columns_data' ), 10, 2 );
 			add_filter( 'manage_cl_consent_log_posts_columns', array( $this, 'set_cl_consent_log_columns' ) );
 			add_filter( 'post_row_actions', array( $this, 'cl_consent_log_disable_quit_edit' ), 10, 2 );
+			add_action( 'admin_menu', array( $this, 'cl_create_admin_submenu' ) );
 
 		}
 
@@ -104,87 +105,104 @@ if ( ! class_exists( 'Consent_Log' ) ) {
 		}
 
 		/**
-		 * Set the CPT columns.
+		 * Create Admin Page for Consent Log.
 		 *
 		 * @since 4.9.6
 		 *
-		 * @param array $columns An array of columns that will be used in consents.
-		 *
-		 * @uses unset()
-		 *
-		 * @return array
-		 */
-		public function set_cl_consent_log_columns( $columns ) {
-
-			unset( $columns['title'] );
-			unset( $columns['date'] );
-
-			$columns['uid']  = __( 'User ID', 'consent-log' );
-			$columns['cid']  = __( 'Consent ID', 'consent-log' );
-			$columns['sid']  = __( 'Status ID', 'consent-log' );
-			$columns['date'] = __( 'Date', 'consent-log' );
-
-			return $columns;
-		}
-
-		/**
-		 * Set the CPT column data.
-		 *
-		 * @since 4.9.6
-		 *
-		 * @param string $column  The column for which we want to get the data.
-		 * @param int    $post_id The consent post-ID.
-		 *
-		 * @uses get_post_meta()
+		 * @uses add_submenu_page()
 		 *
 		 * @return void
 		 */
-		public function cl_consent_log_columns_data( $column, $post_id ) {
+		public function cl_create_admin_submenu() {
 
-			switch ( $column ) {
-				case 'uid':
-					echo esc_html( get_post_meta( $post_id, '_cl_uid', true ) );
-					break;
+			add_submenu_page(
+				'tools.php',
+				'Consent Log',
+				'Consent Log',
+				'manage_options',
+				'consent-log',
+				array( $this, 'cl_create_admin_page' )
+			);
 
-				case 'cid':
-					echo esc_html( get_post_meta( $post_id, '_cl_cid', true ) );
-					break;
-
-				case 'sid':
-					$sid = (int) get_post_meta( $post_id, '_cl_sid', true );
-
-					if ( 1 === $sid ) {
-						esc_html_e( 'Accepted', 'consent-log' );
-					} elseif ( 0 === $sid ) {
-						esc_html_e( 'Declined', 'consent-log' );
-					}
-					break;
-			}
 		}
 
 		/**
-		 * Unset post actions from CPT table
+		 * Creates the Admin Page for Consent Log
 		 *
 		 * @since 4.9.6
 		 *
-		 * @param array   $actions An array of actions for the post-type.
-		 * @param WP_Post $post    The consent post object.
+		 * @uses esc_attr_e()
+		 * @uses have_posts()
+		 * @uses the_post()
+		 * @uses esc_html()
+		 * @uses get_post_meta()
+		 * @uses get_the_ID()
+		 * @uses get_the_date()
+		 * @uses get_the_time()
 		 *
-		 * @uses unset()
-		 *
-		 * @return array           The $actions, modified.
+		 * @return void
 		 */
-		public function cl_consent_log_disable_quit_edit( $actions = array(), $post = null ) {
 
-			if ( 'cl_consent_log' === get_post_type( $post ) ) {
-				unset( $actions['inline hide-if-no-js'] );
-				unset( $actions['edit'] );
-				unset( $actions['view'] );
+		public function cl_create_admin_page() {
+			?>
+			<div class="wrap">
+			<h1>Consent Log</h1>
+			<table class="widefat striped" style="margin-top:20px;">
+				<thead>
+					<th class="row-title"><?php esc_attr_e( 'User ID', 'consent-log' ); ?></th>
+					<th><?php esc_attr_e( 'Consent ID', 'consent-log' ); ?></th>
+					<th><?php esc_attr_e( 'Status', 'consent-log' ); ?></th>
+					<th><?php esc_attr_e( 'Date', 'consent-log' ); ?></th>
+					<th></th>
+				</thead>
+				<?php
+				$args = array(
+					'post_type' => 'cl_consent_log',
+				);
 
-				return $actions;
-			}
+				$query = new WP_Query( $args );
 
-			return $actions;
+				if ( $query->have_posts() ) {
+					while ( $query->have_posts() ) {
+						$query->the_post();
+					?>
+						<tr>
+							<td class="row-title">
+								<?php
+								echo esc_html( get_post_meta( get_the_ID(), '_cl_uid', true ) );
+								?>
+							</td>
+							<td class="row-title">
+								<?php
+								echo esc_html( get_post_meta( get_the_ID(), '_cl_cid', true ) );
+								?>
+							</td>
+							<td class="row-title">
+								<?php
+								$sid = (int) get_post_meta( get_the_ID(), '_cl_sid', true );
+
+								if ( 1 === $sid ) {
+									esc_html_e( 'Accepted', 'consent-log' );
+								} elseif ( 0 === $sid ) {
+									esc_html_e( 'Declined', 'consent-log' );
+								}
+								?>
+							</td>
+							<td class="row-title">
+								<?php
+								echo get_the_date() . ' - ' . get_the_time();
+								?>
+							</td>
+							<td class="row-title">
+								<button class="button">Remove</button>
+							</td>
+						</tr>
+					<?php
+					}
+				}
+				?>
+			</table>
+			<?php
 		}
 
 		/**
